@@ -1,8 +1,8 @@
 {
-	"description": "DontLoadImages",
+	"description": "Do (not) load images for domains via +white- or blacklist",
 	"manifest_version": 2,
 	"name": "DontLoadImages",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"permissions": [
 		 "<all_urls>"
 		,"webRequest"
@@ -18,13 +18,11 @@
 	"browser_action": {
 		"default_icon": {
 			"32": "load.png"
-		},
-		"default_title": "Dont Load Images (global)"
+		}
 	},
 	"page_action": {
-		"default_icon": "load.png"
+		 "default_icon": "load.png"
 		,"browser_style": true
-		,"default_title": "Dont Load Images (for domain)"
 		,"show_matches": ["<all_urls>"]
 	}
 }

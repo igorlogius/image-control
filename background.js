@@ -1,111 +1,97 @@
 (async function() {
-const extId = 'dontLoadImages';
+	const extId = 'dontLoadImages';
 
-let tabIds_to_block_imgs_from = {} ;
-
-async function getStorage() {
-	let store = await browser.storage.local.get(extId);
-	store = (typeof store[extId] !== 'undefined') ? store[extId] : {} ;
-	return store;
-}
-
-let gstore = getStorage();
-let cancel = (typeof gstore['global'] !== 'undefined');
-
-async function setStorage(store) {
-	//console.log(store);
-	await browser.storage.local.set({'dontLoadImages': store});
-}
-
-const onBAClicked = async () => {
-	//console.log("onBAClicked");
-	browser.browserAction.setIcon({path: (cancel?"":"dont") + "load.png" });
-	cancel=(!cancel);
-
-	gstore = await getStorage();
-	if (cancel){
-		gstore['global'] = true;
-	}else{
-		gstore['global'] = undefined;
-		delete gstore['global'];
-	}
-	await setStorage(gstore);
-
-	// todo: tab reload
-	const tabs = await browser.tabs.query({});
-	for(let tab of tabs) {
-		browser.tabs.reload(tab.id);
-	}
-};
-
-const onWRBeforeRequest = (details) => {
-	if (tabIds_to_block_imgs_from[details.tabId] || cancel) {
-		//console.log('canceled request for ',details.tabId, details.url);
-		return {'cancel': true};
-	}
-};
-
-const filter = {
+	const filter = {
 		urls: ["<all_urls>"], 
 		types: ["image", "imageset"]
-};
-const extraInfoSpec = ["blocking"];
+	};
+	const extraInfoSpec = ["blocking"];
 
-async function onPAClicked(tab) {
-	//console.log("onPAClicked");
-	// check if page is in storage
-	const domain = new URL(tab.url);
+	let tabIds_to_block_imgs_from = {} ;
+	let store = await browser.storage.local.get(extId);
+	store = (typeof store[extId] !== 'undefined') ? store[extId] : {} ;
+	//console.log('store ', JSON.stringify(store,null,4));
+	let mode = (typeof store['mode'] === 'boolean') ? store['mode'] : false; // false := whitelist
+	
+	browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
+	browser.browserAction.setIcon({path: (mode?"dont":"") + "load.png" });
 
-	let store = await getStorage(); 
-	//console.log(store);
-
-	if (typeof store[domain.origin] === 'undefined') {
-		store[domain.origin] = true;
-		//browser.pageAction.setIcon({tabId: tab.id, path: "dontload.png" });
-		//console.log('set to dont load, for ', domain.origin);
-	}else{
-		store[domain.origin] = undefined;
-		delete store[domain.origin];
-		//browser.pageAction.setIcon({tabId: tab.id, path: "load.png" });
-		//console.log('set to load, for ', domain.origin);
+	async function setStorage(store) {
+		await browser.storage.local.set({'dontLoadImages': store});
 	}
-	//console.log(store);
-	await setStorage(store);
-	const tabs = await browser.tabs.query({url: domain.origin + "/*"});
-	for(let tab of tabs) {
-		browser.tabs.reload(tab.id);
-	}
-};
 
-async function onWNCompleted(details) {
-	if (details['frameId'] !== 0) {
-		return;
-	}
-	//console.log('onWNCompleted');
+	const BAonClicked = async () => {
+		mode=(!mode);
+		browser.browserAction.setIcon({path: (mode?"dont":"") + "load.png" });
+		browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
 
-	const domain = new URL(details.url);
+		store['mode'] = mode;
+		await setStorage(store);
 
-	let store = await getStorage();
-	//console.log('onWNCompleted:: ', JSON.stringify(store,null,4));
-	if (typeof store[domain.origin] === 'undefined') {
-		//console.log('onWNCompleted:: ', store[domain.origin]);
-		tabIds_to_block_imgs_from[details.tabId] = undefined;
-		delete tabIds_to_block_imgs_from[details.tabId]; 
-		browser.pageAction.setIcon({tabId: details.tabId, path: "load.png" });
-		//console.log('onWNCompleted ::: set to load, for ', domain.origin);
-	}else {
-		tabIds_to_block_imgs_from[details.tabId] = true; 
-		browser.pageAction.setIcon({tabId: details.tabId, path: "dontload.png" });
-		//console.log('onWNCompleted :: set to dont load, for ', domain.origin);
+		const tabs = await browser.tabs.query({});
+		for(let tab of tabs) {
+			browser.tabs.reload(tab.id);
+		}
+	};
 
-	}
-	//console.log('tabids to block', tabIds_to_block_imgs_from);
+	const onBeforeRequest = (details) => {
+		if(mode) { // blacklist  
+			if (tabIds_to_block_imgs_from[details.tabId]) {
+				return {'cancel': true};
+			}
+		}else {  // whitelist 
+			if (!tabIds_to_block_imgs_from[details.tabId]) {
+				return {'cancel': true};
+			}
+		}
+	};
 
-};
 
-browser.webNavigation.onCompleted.addListener(onWNCompleted);
-browser.webNavigation.onBeforeNavigate.addListener(onWNCompleted);
-browser.webRequest.onBeforeRequest.addListener(onWRBeforeRequest,filter,extraInfoSpec);
-browser.browserAction.onClicked.addListener(onBAClicked);
-browser.pageAction.onClicked.addListener(onPAClicked);
+	async function PAonClicked(tab) {
+		const domain = new URL(tab.url);
+
+		if (typeof store[domain.origin] === 'undefined') {
+			store[domain.origin] = true;
+		}else{
+			delete store[domain.origin];
+		}
+		await setStorage(store);
+		const tabs = await browser.tabs.query({url: domain.origin + "/*"});
+		for(let tab of tabs) {
+			await browser.tabs.reload(tab.id);
+		}
+	};
+
+	async function onCompleted(details) {
+		if (details.frameId !== 0) {
+			return;
+		}
+		const domain = new URL(details.url);
+		if (typeof store[domain.origin] === 'undefined') {
+			browser.pageAction.setIcon({tabId: details.tabId, path: "load.png" });
+			browser.pageAction.setTitle({tabId: details.tabId, title: "add to list" });
+		}else {
+			browser.pageAction.setIcon({tabId: details.tabId, path: "dontload.png" });
+			browser.pageAction.setTitle({tabId: details.tabId, title: "remove from list" });
+		}
+	};
+
+	async function onBeforeNavigate(details) {
+		if (details.frameId !== 0) {
+			return;
+		}
+		const domain = new URL(details.url);
+		if (typeof store[domain.origin] === 'undefined') {
+			delete tabIds_to_block_imgs_from[details.tabId]; 
+		}else {
+			tabIds_to_block_imgs_from[details.tabId] = true; 
+		}
+	};
+
+	browser.webNavigation.onCompleted.addListener(onCompleted);
+	browser.webNavigation.onBeforeNavigate.addListener(onBeforeNavigate);
+	browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,filter,extraInfoSpec);
+	browser.browserAction.onClicked.addListener(BAonClicked);
+	browser.pageAction.onClicked.addListener(PAonClicked);
+
 }());
