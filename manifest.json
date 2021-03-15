@@ -1,0 +1,30 @@
+{
+	"description": "DontLoadImages",
+	"manifest_version": 2,
+	"name": "DontLoadImages",
+	"version": "0.1.0",
+	"permissions": [
+		 "<all_urls>"
+		,"webRequest"
+		,"webRequestBlocking"
+		,"storage"
+		,"webNavigation"
+		,"tabs"
+		,"activeTab"
+	], 
+	"background": {
+		"scripts": ["background.js"]
+	},
+	"browser_action": {
+		"default_icon": {
+			"32": "load.png"
+		},
+		"default_title": "Dont Load Images (global)"
+	},
+	"page_action": {
+		"default_icon": "load.png"
+		,"browser_style": true
+		,"default_title": "Dont Load Images (for domain)"
+		,"show_matches": ["<all_urls>"]
+	}
+}
