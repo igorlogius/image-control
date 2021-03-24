@@ -2,7 +2,7 @@
 	"description": "Do (not) load images for domains via +white- or blacklist",
 	"manifest_version": 2,
 	"name": "DontLoadImages",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"icons": {
 		"128": "icon.png"
 	},

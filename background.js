@@ -36,14 +36,15 @@
 
 	const onBeforeRequest = (details) => {
 		if(mode) { // blacklist  
-			if (tabIds_to_block_imgs_from[details.tabId]) {
+			if (typeof tabIds_to_block_imgs_from[details.tabId] === 'boolean' && tabIds_to_block_imgs_from[details.tabId] === true) {
 				return {'cancel': true};
 			}
 		}else {  // whitelist 
-			if (!tabIds_to_block_imgs_from[details.tabId]) {
+			if (typeof tabIds_to_block_imgs_from[details.tabId] !== 'boolean' ) {
 				return {'cancel': true};
 			}
 		}
+		return {'cancel': false};
 	};
 
 
@@ -53,6 +54,7 @@
 		if (typeof store[domain.origin] === 'undefined') {
 			store[domain.origin] = true;
 		}else{
+			store[domain.origin] = undefined;
 			delete store[domain.origin];
 		}
 		await setStorage(store);
@@ -82,6 +84,7 @@
 		}
 		const domain = new URL(details.url);
 		if (typeof store[domain.origin] === 'undefined') {
+			tabIds_to_block_imgs_from[details.tabId] = undefined;
 			delete tabIds_to_block_imgs_from[details.tabId]; 
 		}else {
 			tabIds_to_block_imgs_from[details.tabId] = true; 
