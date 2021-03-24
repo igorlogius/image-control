@@ -14,7 +14,7 @@
 	let mode = (typeof store['mode'] === 'boolean') ? store['mode'] : false; // false := whitelist
 	
 	browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
-	browser.browserAction.setIcon({path: (mode?"dont":"") + "load.png" });
+	browser.browserAction.setIcon({path: (mode?"black":"white") + ".png" });
 
 	async function setStorage(store) {
 		await browser.storage.local.set({'dontLoadImages': store});
@@ -22,7 +22,7 @@
 
 	const BAonClicked = async () => {
 		mode=(!mode);
-		browser.browserAction.setIcon({path: (mode?"dont":"") + "load.png" });
+		browser.browserAction.setIcon({path: (mode?"black":"white") + ".png" });
 		browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
 
 		store['mode'] = mode;
@@ -68,10 +68,10 @@
 		}
 		const domain = new URL(details.url);
 		if (typeof store[domain.origin] === 'undefined') {
-			browser.pageAction.setIcon({tabId: details.tabId, path: "load.png" });
+			browser.pageAction.setIcon({tabId: details.tabId, path: "plus.png" });
 			browser.pageAction.setTitle({tabId: details.tabId, title: "add to list" });
 		}else {
-			browser.pageAction.setIcon({tabId: details.tabId, path: "dontload.png" });
+			browser.pageAction.setIcon({tabId: details.tabId, path: "minus.png" });
 			browser.pageAction.setTitle({tabId: details.tabId, title: "remove from list" });
 		}
 	};
