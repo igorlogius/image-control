@@ -53,7 +53,7 @@
 	}
 
 
-	function PAonClicked(tab) {
+	async function PAonClicked(tab) {
 		const domain = new URL(tab.url);
 
 		if (typeof store[domain.origin] === 'boolean') {
