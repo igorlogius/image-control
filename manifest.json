@@ -1,30 +1,34 @@
 {
-	"description": "Do (not) load images for domains via whitelist or blacklist",
-	"manifest_version": 2,
-	"name": "DontLoadImages",
-	"version": "1.3.1",
-	"icons": {
-		"128": "icon.png"
-	},
-	"permissions": [
-		 "<all_urls>"
-		,"webRequest"
-		,"webRequestBlocking"
-		,"storage"
-		,"webNavigation"
-		,"tabs"
-	], 
-	"background": {
-		"scripts": ["background.js"]
-	},
-	"browser_action": {
-		"default_icon": {
-			"128": "icon.png"
-		}
-	},
-	"page_action": {
-		 "default_icon": "icon.png"
-		,"browser_style": true
-		,"show_matches": ["<all_urls>"]
-	}
+  "author": "igorlogius",
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "default_icon": {
+      "128": "icon.png"
+    }
+  },
+  "description": "Do (not) load images for domains via whitelist or blacklist",
+  "icons": {
+    "128": "icon.png"
+  },
+  "manifest_version": 2,
+  "name": "DontLoadImages",
+  "page_action": {
+    "browser_style": true,
+    "default_icon": "icon.png",
+    "show_matches": [
+      "<all_urls>"
+    ]
+  },
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "tabs"
+  ],
+  "version": "1.3.2"
 }

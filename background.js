@@ -69,22 +69,23 @@
 		}
 	};
 
-	function onCompleted(details) {
-		if (details.frameId !== 0) {
-			return;
-		}
-		const domain = new URL(details.url);
+	function onUpdated(tabId, changeInfo, tab) {
+
+    if (changeInfo.status !== 'complete' || typeof tab.url !== 'string'){
+      return;
+    }
+		const domain = new URL(tab.url);
 		if (typeof store[domain.origin] !== 'boolean') {
-			browser.pageAction.setIcon({tabId: details.tabId, path: "plus.png" });
-			browser.pageAction.setTitle({tabId: details.tabId, title: "add to list" });
+			browser.pageAction.setIcon({tabId: tabId, path: "plus.png" });
+			browser.pageAction.setTitle({tabId: tabId, title: "add to list" });
 		}else {
-			browser.pageAction.setIcon({tabId: details.tabId, path: "minus.png" });
-			browser.pageAction.setTitle({tabId: details.tabId, title: "remove from list" });
+			browser.pageAction.setIcon({tabId: tabId, path: "minus.png" });
+			browser.pageAction.setTitle({tabId: tabId, title: "remove from list" });
 		}
 	};
 
 
-	browser.webNavigation.onCompleted.addListener(onCompleted);
+	browser.tabs.onUpdated.addListener(onUpdated, { urls: ["<all_urls>"], properties: ["status"] });
 	browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,filter,extraInfoSpec);
 	browser.browserAction.onClicked.addListener(BAonClicked);
 	browser.pageAction.onClicked.addListener(PAonClicked);
