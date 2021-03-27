@@ -1,5 +1,5 @@
 (async function() {
-	const extId = 'DontLoadImages';
+	const extId = 'dontLoadImages';
 
 	const filter = {
 		urls: ["<all_urls>"], 
