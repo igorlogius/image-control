@@ -35,6 +35,11 @@
 
 	function onBeforeRequest (details) {
 
+		if (details.url ===  details.documentUrl) { 
+			//console.log('direct load of ', details.url);
+			// direct load of image
+			return;
+		}
 		const domain = new URL(details.originUrl);
 		const origin = domain.origin;
 
