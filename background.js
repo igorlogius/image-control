@@ -33,24 +33,23 @@
 		}
 	};
 
-	function onBeforeRequest (details) {
+	async function onBeforeRequest (details) {
 
-		if (details.url ===  details.documentUrl) { 
-			//console.log('direct load of ', details.url);
-			// direct load of image
-			return;
-		}
-		const domain = new URL(details.originUrl);
+		// the url of the tab which triggered the request 
+		// determines if all subsequent images will be loaded
+		const tab = await browser.tabs.get(details.tabId);
+		const domain = new URL(tab.url); 
 		const origin = domain.origin;
+
 
 		if(mode) { // blacklist 
 			if(typeof store[origin] === 'boolean'){
-				//console.log('blocked', details.url);
+				//console.log('blacklist block request to ', details.url , " from " ,  origin);
 				return {cancel: true};
 			}
 		}else{ // whitelist
 			if(typeof store[origin] !== 'boolean'){
-				//console.log('blocked', details.url);
+				//console.log('whitelist block request to ', details.url , " from " ,  origin);
 				return {cancel: true};
 			}
 		}
@@ -60,6 +59,8 @@
 
 	async function PAonClicked(tab) {
 		const domain = new URL(tab.url);
+
+		console.log('PAonClicked domain: ' + domain.origin);
 
 		if (typeof store[domain.origin] === 'boolean') {
 			delete store[domain.origin];
