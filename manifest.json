@@ -21,6 +21,9 @@
     "default_icon": "icon.png",
     "show_matches": [
       "<all_urls>"
+    ],
+    "hide_matches": [
+      "*://addons.mozilla.org/*"
     ]
   },
   "permissions": [
