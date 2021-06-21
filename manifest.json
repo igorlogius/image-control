@@ -19,6 +19,7 @@
   "page_action": {
     "browser_style": true,
     "default_icon": "icon.png",
+    "default_title": "toggle list state",
     "show_matches": [
       "<all_urls>"
     ],
@@ -27,11 +28,12 @@
     ]
   },
   "permissions": [
+    "activeTab",
+    "notifications",
     "<all_urls>",
     "webRequest",
     "webRequestBlocking",
-    "storage",
-    "tabs"
+    "storage"
   ],
-  "version": "1.3.4"
+  "version": "1.3.5"
 }
