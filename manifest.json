@@ -28,12 +28,12 @@
     ]
   },
   "permissions": [
-    "activeTab",
-    "notifications",
+    "tabs",
     "<all_urls>",
     "webRequest",
     "webRequestBlocking",
-    "storage"
+    "storage",
+    "notifications"
   ],
-  "version": "1.3.6"
+  "version": "1.3.7"
 }

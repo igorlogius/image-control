@@ -26,6 +26,31 @@
 
 		store['mode'] = mode;
 		await setStorage(store);
+
+		/*
+
+		const can_notify = await browser.permissions.contains({
+			permissions: ["notifications"]
+		});
+
+		//console.log('can_notify', can_notify);
+
+		if(can_notify) {
+		*/
+			const notify_title = extId + '\nSwitched to ' + ((mode)?"black":"white") + "list mode";
+			let notify_message = "";
+			if(mode) {
+				notify_message = "added origin entries will not load images";
+			}else{
+				notify_message = "only added origin entries will load images";
+			}
+			browser.notifications.create(extId, {
+				"type": "basic",
+				"iconUrl": browser.runtime.getURL("icon.png"),
+				"title": notify_title, 
+				"message":  notify_message 
+			});
+		//}
 	};
 
 	async function onBeforeRequest (details) {
@@ -49,6 +74,8 @@
 			}
 		}
 		//console.log('loaded', details.url);
+
+
 	}
 
 
@@ -59,13 +86,16 @@
 
 
 		let notify_title = '';
+		let notify_message = '';
 		if (typeof store[domain.origin] === 'boolean') {
 			delete store[domain.origin];
 
 			if(mode) { // blacklist 
 				notify_title = extId + '\nremoved "' + domain.origin + '" from blacklist';
+				notify_message = 'tabs with this origin will load images';
 			}else{
 				notify_title = extId + '\nremoved "' + domain.origin + '" from whitelist';
+				notify_message = 'tabs with this origin will not load images';
 			}
 
 			browser.pageAction.setIcon({tabId: tab.id, path: "plus.png" });
@@ -75,8 +105,10 @@
 
 			if(mode) { // blacklist 
 				notify_title = extId + '\nadded "' + domain.origin + '" to blacklist';
+				notify_message = 'tabs with this origin will not load images';
 			}else{
 				notify_title = extId + '\nadded "' + domain.origin + '" to whitelist';
+				notify_message = 'tabs with this origin will load images';
 			}
 
 			browser.pageAction.setIcon({tabId: tab.id, path: "minus.png" });
@@ -85,13 +117,20 @@
 		//console.log(store);
 		setStorage(store);
 
-		const notify_message = 'open tabs with this origin will not be affected';
-		browser.notifications.create(extId, {
-			"type": "basic",
-			"iconUrl": browser.runtime.getURL("icon.png"),
-			"title": notify_title, 
-			"message":  notify_message 
+		/*
+		const can_notify = await browser.permissions.contains({
+			permissions: ["notifications"]
 		});
+
+		if(can_notify) {
+		*/
+			browser.notifications.create(extId, {
+				"type": "basic",
+				"iconUrl": browser.runtime.getURL("icon.png"),
+				"title": notify_title, 
+				"message":  notify_message 
+			});
+		//}
 	};
 
 	function onUpdated(tabId, changeInfo, tab) {
@@ -108,7 +147,6 @@
 			browser.pageAction.setTitle({tabId: tabId, title: "remove from list" });
 		}
 	};
-
 
 	browser.tabs.onUpdated.addListener(onUpdated, { urls: ["<all_urls>"], properties: ["status"] });
 	browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,filter,extraInfoSpec);
