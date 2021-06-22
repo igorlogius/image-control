@@ -26,23 +26,14 @@
 
 		store['mode'] = mode;
 		await setStorage(store);
-
-		/* https://github.com/igorlogius/dontLoadImages/issues/1 
-		const tabs = await browser.tabs.query({});
-		for(let tab of tabs) {
-			await browser.tabs.reload(tab.id);
-		}
-		*/
-
-
 	};
 
 	async function onBeforeRequest (details) {
 
 		// the url of the tab which triggered the request 
 		// determines if all subsequent images will be loaded
-		//const tab = await browser.tabs.get(details.tabId);
-		const domain = new URL(details.documentUrl); 
+		const tab = await browser.tabs.get(details.tabId);
+		const domain = new URL(tab.url); 
 		const origin = domain.origin;
 
 
@@ -64,7 +55,7 @@
 	async function PAonClicked(tab) {
 		const domain = new URL(tab.url);
 
-		console.log('PAonClicked domain: ' + domain.origin);
+		//console.log('PAonClicked domain: ' + domain.origin);
 
 
 		let notify_title = '';
@@ -76,42 +67,25 @@
 			}else{
 				notify_title = extId + '\nremoved "' + domain.origin + '" from whitelist';
 			}
+
+			browser.pageAction.setIcon({tabId: tab.id, path: "plus.png" });
+			browser.pageAction.setTitle({tabId: tab.id, title: "add to list" });
 		}else{
 			store[domain.origin] = true;
 
 			if(mode) { // blacklist 
-
 				notify_title = extId + '\nadded "' + domain.origin + '" to blacklist';
 			}else{
 				notify_title = extId + '\nadded "' + domain.origin + '" to whitelist';
 			}
+
+			browser.pageAction.setIcon({tabId: tab.id, path: "minus.png" });
+			browser.pageAction.setTitle({tabId: tab.id, title: "remove from list" });
 		}
 		//console.log(store);
 		setStorage(store);
 
-		/* https://github.com/igorlogius/dontLoadImages/issues/1 
-		const tabs = await browser.tabs.query({url: domain.origin + "/*"});
-		for(let tab of tabs) {
-			//browser.tabs.reload(tab.id);
-			browser.tabs.executeScript({
-				code: `
-				    var images = document.getElementsByTagName("img");
-				    let images_length = images.length;
-				    for (let i = 0; i < images_length; i++) {
-				      images[i].style.setProperty("display", "none", "important");
-				    }
-				    let all_elements = document.querySelectorAll("*");
-				    for(let i = 0 ; i < all_elements.length ; i++){
-				      all_elements[i].style.setProperty("background-image","unset","important");
-				    }	
-				`
-			});
-		}
-		*/
-
-
 		const notify_message = 'open tabs with this origin will not be affected';
-
 		browser.notifications.create(extId, {
 			"type": "basic",
 			"iconUrl": browser.runtime.getURL("icon.png"),
@@ -120,7 +94,6 @@
 		});
 	};
 
-	/*
 	function onUpdated(tabId, changeInfo, tab) {
 
 		if (changeInfo.status !== 'complete' || typeof tab.url !== 'string'){
@@ -135,10 +108,9 @@
 			browser.pageAction.setTitle({tabId: tabId, title: "remove from list" });
 		}
 	};
-	*/
 
 
-	//browser.tabs.onUpdated.addListener(onUpdated, { urls: ["<all_urls>"], properties: ["status"] });
+	browser.tabs.onUpdated.addListener(onUpdated, { urls: ["<all_urls>"], properties: ["status"] });
 	browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,filter,extraInfoSpec);
 	browser.browserAction.onClicked.addListener(BAonClicked);
 	browser.pageAction.onClicked.addListener(PAonClicked);
