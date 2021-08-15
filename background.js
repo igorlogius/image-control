@@ -1,5 +1,8 @@
 (async function() {
-	const extId = 'dontLoadImages';
+
+	const temporary = browser.runtime.id.endsWith('@temporary-addon'); // debugging?
+	const manifest = browser.runtime.getManifest();
+	const extname = manifest.name;
 
 	const filter = {
 		urls: ["<all_urls>"], 
@@ -7,8 +10,8 @@
 	};
 	const extraInfoSpec = ["blocking"];
 
-	let store = await browser.storage.local.get(extId);
-	store = (typeof store[extId] !== 'undefined') ? store[extId] : {} ;
+	let store = await browser.storage.local.get('dontLoadImages');
+	store = (typeof store['dontLoadImages'] !== 'undefined') ? store['dontLoadImages'] : {} ;
 	//console.log('store ', JSON.stringify(store,null,4));
 	let mode = (typeof store['mode'] === 'boolean') ? store['mode'] : false; // false := whitelist
 
@@ -37,14 +40,14 @@
 
 		if(can_notify) {
 		*/
-			const notify_title = extId + '\nSwitched to ' + ((mode)?"black":"white") + "list mode";
+			const notify_title = extname + '\nSwitched to ' + ((mode)?"black":"white") + "list mode";
 			let notify_message = "";
 			if(mode) {
 				notify_message = "added origin entries will not load images";
 			}else{
 				notify_message = "only added origin entries will load images";
 			}
-			browser.notifications.create(extId, {
+			browser.notifications.create(extname, {
 				"type": "basic",
 				"iconUrl": browser.runtime.getURL("icon.png"),
 				"title": notify_title, 
@@ -91,10 +94,10 @@
 			delete store[domain.origin];
 
 			if(mode) { // blacklist 
-				notify_title = extId + '\nremoved "' + domain.origin + '" from blacklist';
+				notify_title = extname + '\nremoved "' + domain.origin + '" from blacklist';
 				notify_message = 'tabs with this origin will load images';
 			}else{
-				notify_title = extId + '\nremoved "' + domain.origin + '" from whitelist';
+				notify_title = extname + '\nremoved "' + domain.origin + '" from whitelist';
 				notify_message = 'tabs with this origin will not load images';
 			}
 
@@ -104,10 +107,10 @@
 			store[domain.origin] = true;
 
 			if(mode) { // blacklist 
-				notify_title = extId + '\nadded "' + domain.origin + '" to blacklist';
+				notify_title = extname + '\nadded "' + domain.origin + '" to blacklist';
 				notify_message = 'tabs with this origin will not load images';
 			}else{
-				notify_title = extId + '\nadded "' + domain.origin + '" to whitelist';
+				notify_title = extname + '\nadded "' + domain.origin + '" to whitelist';
 				notify_message = 'tabs with this origin will load images';
 			}
 
@@ -124,7 +127,7 @@
 
 		if(can_notify) {
 		*/
-			browser.notifications.create(extId, {
+			browser.notifications.create(extname, {
 				"type": "basic",
 				"iconUrl": browser.runtime.getURL("icon.png"),
 				"title": notify_title, 
