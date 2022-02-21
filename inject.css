@@ -1,0 +1,16 @@
+
+img {
+    display:none !important;
+}
+picture {
+    display:none !important;
+}
+canvas{
+    display:none !important;
+}
+svg {
+    display:none !important;
+}
+video {
+    display:none !important;
+}

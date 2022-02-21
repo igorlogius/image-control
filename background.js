@@ -43,9 +43,9 @@
         const notify_title = extname + '\nSwitched to ' + ((mode)?"black":"white") + "list mode";
         let notify_message = "";
         if(mode) {
-            notify_message = "added origin entries will not load images";
+            notify_message = "added origin entries will not load and display images";
         }else{
-            notify_message = "only added origin entries will load images";
+            notify_message = "only added origin entries will load and display images";
         }
         browser.notifications.create(extname, {
             "type": "basic",
@@ -86,7 +86,6 @@
         const domain = new URL(tab.url);
 
         //console.log('PAonClicked domain: ' + domain.origin);
-
 
         let notify_title = '';
         let notify_message = '';
@@ -138,31 +137,48 @@
 
     function onUpdated(tabId, changeInfo, tab) {
 
-        if (changeInfo.status !== 'complete' || typeof tab.url !== 'string'){
-            return;
-        }
-        const domain = new URL(tab.url);
-        if (typeof store[domain.origin] !== 'boolean') {
-            browser.pageAction.setIcon({tabId: tabId, path: "plus.png" });
-            browser.pageAction.setTitle({tabId: tabId, title: "add to list" });
+        if (changeInfo.status === 'complete' && typeof tab.url === 'string'){
 
-            if(mode) { // blacklist
-            }else{
-                browser.tabs.executeScript(tabId,{
-                    file: "inject.js"
-                });
+            const domain = new URL(tab.url);
+            if (typeof store[domain.origin] !== 'boolean') {
+                browser.pageAction.setIcon({tabId: tabId, path: "plus.png" });
+                browser.pageAction.setTitle({tabId: tabId, title: "add to list" });
+
+                if(mode) { // blacklist
+                }else{
+                    browser.tabs.insertCSS(tabId,{
+                        file: "inject.css"
+                        ,allFrames: true
+                        ,runAt: "document_end"
+                        ,cssOrigin: "user"
+                    });
+
+                    browser.tabs.executeScript(tabId,{
+                        file: "inject.js"
+                        ,allFrames: true
+                        ,runAt: "document_end"
+                    });
+                }
+            }else {
+                browser.pageAction.setIcon({tabId: tabId, path: "minus.png" });
+                browser.pageAction.setTitle({tabId: tabId, title: "remove from list" });
+
+                if(mode) { // blacklist
+                    browser.tabs.insertCSS(tabId,{
+                        file: "inject.css"
+                        ,allFrames: true
+                        ,runAt: "document_end"
+                        ,cssOrigin: "user"
+                    });
+                    browser.tabs.executeScript(tabId,{
+                        file: "inject.js"
+                        ,allFrames: true
+                        ,runAt: "document_end"
+                    });
+                }else{
+                }
             }
-        }else {
-            browser.pageAction.setIcon({tabId: tabId, path: "minus.png" });
-            browser.pageAction.setTitle({tabId: tabId, title: "remove from list" });
 
-
-            if(mode) { // blacklist
-                browser.tabs.executeScript(tabId,{
-                    file: "inject.js"
-                });
-            }else{
-            }
         }
 
     };
