@@ -47,13 +47,18 @@
         }else{
             notify_message = "only added origin entries will load and display images";
         }
-        browser.notifications.create(extname, {
+        const nID = await browser.notifications.create(extname, {
             "type": "basic",
             "iconUrl": browser.runtime.getURL("icon.png"),
             "title": notify_title,
             "message":  notify_message
         });
         //}
+
+        // wait 5 Seconds to clear the notification
+        setTimeout(() => {
+             browser.notifications.clear(nID);
+        },4*1000);
     };
 
     async function onBeforeRequest (details) {
