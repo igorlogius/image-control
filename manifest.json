@@ -15,7 +15,7 @@
     "128": "icon.png"
   },
   "manifest_version": 2,
-  "name": "image-load-control",
+  "name": "Image Control",
   "page_action": {
     "browser_style": true,
     "default_icon": "icon.png",
@@ -35,5 +35,5 @@
     "storage",
     "notifications"
   ],
-  "version": "1.4.2"
+  "version": "1.4.3"
 }

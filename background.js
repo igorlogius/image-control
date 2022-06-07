@@ -1,6 +1,7 @@
+/* global browser */
 (async function() {
 
-    const temporary = browser.runtime.id.endsWith('@temporary-addon'); // debugging?
+    //const temporary = browser.runtime.id.endsWith('@temporary-addon'); // debugging?
     const manifest = browser.runtime.getManifest();
     const extname = manifest.name;
 
@@ -59,7 +60,7 @@
         setTimeout(() => {
              browser.notifications.clear(nID);
         },4*1000);
-    };
+    }
 
     async function onBeforeRequest (details) {
 
@@ -138,7 +139,7 @@
             "message":  notify_message
         });
         //}
-    };
+    }
 
     function onUpdated(tabId, changeInfo, tab) {
 
@@ -180,13 +181,12 @@
                         ,allFrames: true
                         ,runAt: "document_end"
                     });
-                }else{
                 }
             }
 
         }
 
-    };
+    }
 
     browser.tabs.onUpdated.addListener(onUpdated, { urls: ["<all_urls>"], properties: ["status"] });
     browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,filter,extraInfoSpec);
