@@ -27,6 +27,9 @@
       "*://addons.mozilla.org/*"
     ]
   },
+  "options_ui": {
+    "page": "options.html"
+  },
   "permissions": [
     "tabs",
     "<all_urls>",
@@ -35,5 +38,5 @@
     "storage",
     "notifications"
   ],
-  "version": "1.4.3"
+  "version": "1.5.3"
 }
