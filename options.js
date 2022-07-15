@@ -7,7 +7,12 @@ const expbtn = document.getElementById('expbtn');
 expbtn.addEventListener('click', async () => {
     let dl = document.createElement('a');
     let res = await browser.storage.local.get('list');
-    let content = JSON.stringify(res.list, null, 4);
+    let content = '[]';
+    if(typeof res !== 'undefined'){
+        if(typeof res.list !== 'undefined'){
+            content = JSON.stringify(res.list, null, 4);
+        }
+    }
     dl.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(content));
     dl.setAttribute('download', 'image-control-origins.json');
     dl.setAttribute('visibility', 'hidden');
