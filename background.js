@@ -24,10 +24,7 @@
         return browser.storage.local.set({'mode': mode});
 	}
 
-    browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
-    browser.browserAction.setIcon({path: (mode?"black":"white") + ".png" });
-
-    async function BAonClicked() {
+    async function onBrowserActionClicked() {
         mode=(!mode);
         browser.browserAction.setIcon({path: (mode?"black":"white") + ".png" });
         browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
@@ -76,9 +73,9 @@
         //console.log('loaded', details.url);
     }
 
-    async function PAonClicked(tab) {
+    async function onPageActionClicked(tab) {
         const domain = new URL(tab.url);
-        //console.log('PAonClicked domain: ' + domain.origin);
+        //console.log('onPageActionClicked domain: ' + domain.origin);
 
         let notify_title = '';
         let notify_message = '';
@@ -172,11 +169,14 @@
     list = new Set(await getFromStorage('Array', 'list', []));
     mode = await getFromStorage('boolean','mode', false); // false := whitelist
 
+    browser.browserAction.setTitle({title: (mode?"black":"white") + "list" });
+    browser.browserAction.setIcon({path: (mode?"black":"white") + ".png" });
+
     // register listeners
     browser.tabs.onUpdated.addListener(onUpdated, onUpdatedFilter);
     browser.webRequest.onBeforeRequest.addListener(onBeforeRequest,onBeforeRequestFilter,onBeforeRequestExtraInfoSpec);
-    browser.browserAction.onClicked.addListener(BAonClicked);
-    browser.pageAction.onClicked.addListener(PAonClicked);
+    browser.browserAction.onClicked.addListener(onBrowserActionClicked);
+    browser.pageAction.onClicked.addListener(onPageActionClicked);
 
 
     //  migrate old storage data on update
